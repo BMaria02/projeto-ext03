@@ -1,9 +1,9 @@
 # projeto-ext03
-☕ Café da Bianca - Sistema de Cafeteria Online
+☕ Café da LaLa - Sistema de Cafeteria Online
 
 Descrição do Projeto
 
-Café da Bianca é um sistema completo de e-commerce para cafeteria, desenvolvido para proporcionar uma experiência única e moderna aos clientes. O site permite que os usuários naveguem pelo cardápio, personalizem seus pedidos, acompanhem o status em tempo real e finalizem compras de forma simples e intuitiva.
+Café da LaLa é um sistema completo de e-commerce para cafeteria, desenvolvido para proporcionar uma experiência única e moderna aos clientes. O site permite que os usuários naveguem pelo cardápio, personalizem seus pedidos, acompanhem o status em tempo real e finalizem compras de forma simples e intuitiva.
 
 Principais Características:
 
