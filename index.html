@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Café da Bianca - A Melhor Cafeteria</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Particles Canvas Background -->
+    <canvas id="particlesCanvas"></canvas>
+
+    <!-- Notification -->
+    <div id="notification" class="notification">Mensagem</div>
+
+    <!-- Cart Overlay -->
+    <div id="cartOverlay" class="cart-overlay" onclick="toggleCart()"></div>
+
+    <!-- Cart Sidebar -->
+    <div id="cartSidebar" class="cart-sidebar">
+        <div class="cart-header">
+            <h2>🛒 Seu Carrinho</h2>
+            <button class="icon-btn" onclick="toggleCart()" style="background: rgba(255,255,255,0.3);">✕</button>
+        </div>
+        <div id="cartContent" class="cart-content">
+            <div class="cart-empty">Carrinho vazio<br>🛒</div>
+        </div>
+        <div id="cartFooter" class="cart-footer" style="display: none;">
+            <div class="cart-total">
+                <span>Total:</span>
+                <span id="cartTotal" class="cart-total-price">R$ 0,00</span>
+            </div>
+            <button class="btn-primary" style="width: 100%;" onclick="openCheckoutModal()">Finalizar Pedido 🎉</button>
+        </div>
+    </div>
+
+    <!-- Product Detail Modal -->
+    <div id="productModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalProductName">Produto</h2>
+                <button class="close-modal" onclick="closeProductModal()">×</button>
+            </div>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkoutModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Finalizar Pedido</h2>
+                <button class="close-modal" onclick="closeCheckoutModal()">×</button>
+            </div>
+            <div id="checkoutContent">
+                <form id="checkoutForm" onsubmit="submitOrder(event)">
+                    <div class="form-group">
+                        <label class="form-label">👤 Nome Completo *</label>
+                        <input type="text" class="form-input" id="customerName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">📞 Telefone *</label>
+                        <input type="tel" class="form-input" id="customerPhone" placeholder="(00) 00000-0000" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">🚚 Tipo de Entrega *</label>
+                        <select class="form-select" id="deliveryType" onchange="toggleAddressField()" required>
+                            <option value="">Selecione...</option>
+                            <option value="delivery">🚚 Entrega (R$ 5,00)</option>
+                            <option value="pickup">🏪 Retirar no Local (Grátis)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="addressGroup" style="display: none;">
+                        <label class="form-label">📍 Endereço Completo *</label>
+                        <input type="text" class="form-input" id="customerAddress" placeholder="Rua, número, complemento, bairro">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">💳 Forma de Pagamento *</label>
+                        <select class="form-select" id="paymentMethod" required>
+                            <option value="">Selecione...</option>
+                            <option value="cash">💵 Dinheiro</option>
+                            <option value="debit">💳 Cartão de Débito</option>
+                            <option value="credit">💳 Cartão de Crédito</option>
+                            <option value="pix">📱 PIX</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">📝 Observações</label>
+                        <textarea class="form-textarea" id="orderNotes" placeholder="Alguma observação especial?"></textarea>
+                    </div>
+
+                    <div class="order-summary">
+                        <h3 style="margin-bottom: 1.5rem; color: #92400e; font-weight: 800; font-size: 1.3rem;">📋 Resumo do Pedido</h3>
+                        <div id="orderSummary"></div>
+                        <div class="order-item" style="font-weight: 800; font-size: 1.2rem; margin-top: 1rem; padding-top: 1rem; border-top: 2px solid #f59e0b;">
+                            <span>Total:</span>
+                            <span id="finalTotal">R$ 0,00</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary" style="width: 100%;">
+                        Confirmar Pedido 🎉
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <div class="logo" onclick="scrollToTop()">
+                <canvas id="logoCanvas" class="logo-canvas" width="60" height="60"></canvas>
+                <div class="logo-text">
+                    <span class="logo-main">CAFÉ DA BIANCA</span>
+                    <span class="logo-sub">Sabor que aquece o coração</span>
+                </div>
+            </div>
+            
+            <nav>
+                <a href="#home">Início</a>
+                <a href="#menu">Cardápio</a>
+                <a href="#orders">Meus Pedidos</a>
+                <a href="#about">Sobre</a>
+                <a href="#contact">Contato</a>
+            </nav>
+
+            <div class="header-actions">
+                <button class="icon-btn" onclick="scrollToOrders()" title="Meus Pedidos">
+                    📋
+                    <span id="ordersBadge" class="cart-badge" style="display: none;">0</span>
+                </button>
+                <button class="icon-btn" onclick="toggleCart()">
+                    🛒
+                    <span id="cartBadge" class="cart-badge" style="display: none;">0</span>
+                </button>
+                <button class="icon-btn" onclick="showNotification('Área de login em breve! 😊', 'success')">👤</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h2>BEM-VINDO AO<br>CAFÉ DA BIANCA</h2>
+            <p>
+                Desfrute do melhor café artesanal preparado com grãos selecionados. 
+                Uma experiência única para satisfazer seus sentidos.
+            </p>
+            <div class="hero-buttons">
+                <button class="btn-primary" onclick="scrollToMenu()">Peça Agora</button>
+                <button class="btn-secondary" onclick="scrollToMenu()">Explorar →</button>
+            </div>
+        </div>
+        
+        <div class="hero-visual">
+            <div class="hero-emoji">☕</div>
+            <div class="hero-emoji-small">🥐</div>
+            <div class="hero-emoji-small">🍰</div>
+        </div>
+    </section>
+
+    <!-- Menu Section -->
+    <section id="menu" class="menu-section">
+        <div class="section-header">
+            <h2>NOSSO CARDÁPIO</h2>
+            <p>Produtos artesanais preparados com amor e dedicação</p>
+        </div>
+
+        <div class="filter-buttons">
+            <button class="filter-btn active" onclick="filterProducts('all')">✨ Todos</button>
+            <button class="filter-btn" onclick="filterProducts('quente')">☕ Quentes</button>
+            <button class="filter-btn" onclick="filterProducts('gelado')">🧊 Gelados</button>
+            <button class="filter-btn" onclick="filterProducts('doce')">🍰 Doces</button>
+            <button class="filter-btn" onclick="filterProducts('salgado')">🥐 Salgados</button>
+        </div>
+        
+        <div class="products-grid" id="productsGrid"></div>
+    </section>
+
+    <!-- Orders Section -->
+    <section id="orders" class="menu-section">
+        <div class="section-header">
+            <h2>MEUS PEDIDOS</h2>
+            <p>Acompanhe seus pedidos em tempo real</p>
+        </div>
+        
+        <div class="orders-list" id="ordersList">
+            <div class="empty-orders">
+                <div class="empty-orders-icon">📦</div>
+                <h3 style="color: #374151; margin-bottom: 0.5rem; font-size: 1.5rem; font-weight: 800;">Nenhum pedido ainda</h3>
+                <p style="font-size: 1.1rem;">Faça seu primeiro pedido e acompanhe aqui!</p>
+                <button class="btn-primary" style="margin-top: 2rem;" onclick="scrollToMenu()">
+                    Ver Cardápio ☕
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Choose Us Section -->
+    <section id="about" class="why-section">
+        <div class="section-header">
+            <h2>POR QUE NOS ESCOLHER?</h2>
+        </div>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-emoji">🌱</div>
+                <h3 class="feature-title">Café Premium</h3>
+                <p class="feature-text">
+                    Utilizamos apenas grãos de café premium, selecionados de fazendas sustentáveis
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-emoji">⭐</div>
+                <h3 class="feature-title">Qualidade Superior</h3>
+                <p class="feature-text">
+                    Cada xícara é preparada por baristas experientes com técnicas artesanais
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-emoji">🚀</div>
+                <h3 class="feature-title">Entrega Rápida</h3>
+                <p class="feature-text">
+                    Receba seu pedido quentinho em até 30 minutos na sua casa
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact-section">
+        <div class="contact-grid">
+            <div class="contact-item">
+                <div class="contact-icon">🕐</div>
+                <h3 class="contact-title">Horário</h3>
+                <p>Seg - Sex: 7h - 20h</p>
+                <p>Sáb - Dom: 8h - 18h</p>
+            </div>
+            
+            <div class="contact-item">
+                <div class="contact-icon">📍</div>
+                <h3 class="contact-title">Localização</h3>
+                <p>Rua do Café, 123</p>
+                <p>Centro - Cidade</p>
+            </div>
+            
+            <div class="contact-item">
+                <div class="contact-icon">⭐</div>
+                <h3 class="contact-title">Avaliação</h3>
+                <div class="stars">
+                    <span class="star">⭐</span>
+                    <span class="star">⭐</span>
+                    <span class="star">⭐</span>
+                    <span class="star">⭐</span>
+                    <span class="star">⭐</span>
+                </div>
+                <p>4.9/5.0 (1.234 avaliações)</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-logo">
+            <span>☕</span>
+            <span>CAFÉ DA BIANCA</span>
+        </div>
+        <p class="footer-text">© 2024 Café da Bianca. Todos os direitos reservados.</p>
+        <p class="footer-love">Feito com ❤️ e muito café</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
